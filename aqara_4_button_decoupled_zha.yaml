@@ -1,0 +1,113 @@
+blueprint:
+  name: Aqara 4 Button Wall Switch - ZHA Decoupled
+  description: >
+    Reusable blueprint for a 4-button Aqara wall switch in ZHA decoupled mode.
+
+    Button mapping:
+    - Top Left -> 5_single
+    - Top Right -> 4_single
+    - Bottom Left -> 2_single
+    - Bottom Right -> 1_single
+
+    Use a friendly switch name for readability and the IEEE for reliable matching.
+  domain: automation
+  input:
+    switch_name:
+      name: Switch name
+      description: Friendly name used only for readability in the automation UI
+      default: Living Room Wall Switch
+      selector:
+        text:
+
+    switch_ieee:
+      name: Switch IEEE
+      description: IEEE address of the ZHA wall switch, for example 54:ef:44:10:01:29:44:1b
+      selector:
+        text:
+
+    top_left_action:
+      name: Top Left action
+      description: Action to run when the top-left button is pressed once
+      default: []
+      selector:
+        action: {}
+
+    top_right_action:
+      name: Top Right action
+      description: Action to run when the top-right button is pressed once
+      default: []
+      selector:
+        action: {}
+
+    bottom_left_action:
+      name: Bottom Left action
+      description: Action to run when the bottom-left button is pressed once
+      default: []
+      selector:
+        action: {}
+
+    bottom_right_action:
+      name: Bottom Right action
+      description: Action to run when the bottom-right button is pressed once
+      default: []
+      selector:
+        action: {}
+
+trigger_variables:
+  switch_ieee: !input switch_ieee
+  switch_name: !input switch_name
+
+trigger:
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_ieee: !input switch_ieee
+      command: 5_single
+    id: top_left
+
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_ieee: !input switch_ieee
+      command: 4_single
+    id: top_right
+
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_ieee: !input switch_ieee
+      command: 2_single
+    id: bottom_left
+
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_ieee: !input switch_ieee
+      command: 1_single
+    id: bottom_right
+
+condition: []
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: top_left
+        sequence: !input top_left_action
+
+      - conditions:
+          - condition: trigger
+            id: top_right
+        sequence: !input top_right_action
+
+      - conditions:
+          - condition: trigger
+            id: bottom_left
+        sequence: !input bottom_left_action
+
+      - conditions:
+          - condition: trigger
+            id: bottom_right
+        sequence: !input bottom_right_action
+
+mode: single
